@@ -1,0 +1,47 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080d18">
+  <title>Mi Sistema RPG</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+  <main class="app">
+    <header>
+      <p class="eyebrow">SISTEMA · JUGADOR</p>
+      <h1>MI DESPERTAR</h1>
+      <p class="subtitle">Tu aventura comienza hoy.</p>
+    </header>
+
+    <section class="panel profile">
+      <div class="rank">RANGO <span id="rank">E</span></div>
+      <h2>Nivel <span id="level">1</span></h2>
+      <p><span id="xp">0</span> / 100 EXP para el siguiente nivel</p>
+      <div class="bar"><div id="xp-bar"></div></div>
+    </section>
+
+    <section class="panel">
+      <h2>⚔️ Misiones diarias</h2>
+      <p class="muted">Completa tus misiones y gana experiencia.</p>
+      <div id="missions"></div>
+    </section>
+
+    <section class="panel">
+      <h2>📊 Estadísticas</h2>
+      <div class="stats">
+        <p>💪 Fuerza <strong id="strength">0</strong></p>
+        <p>❤️ Vitalidad <strong id="vitality">0</strong></p>
+        <p>🧠 Inteligencia <strong id="intelligence">0</strong></p>
+        <p>🔥 Disciplina <strong id="discipline">0</strong></p>
+      </div>
+    </section>
+
+    <footer>SISTEMA ACTIVO · SUPERA TUS LÍMITES</footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
