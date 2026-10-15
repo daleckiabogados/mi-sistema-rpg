@@ -1,47 +1,67 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#080d18">
+  <meta name="theme-color" content="#10101a">
   <title>Mi Sistema RPG</title>
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
-  <main class="app">
-    <header>
-      <p class="eyebrow">SISTEMA · JUGADOR</p>
-      <h1>MI DESPERTAR</h1>
-      <p class="subtitle">Tu aventura comienza hoy.</p>
-    </header>
+  <header>
+    <h1>⚔️ MI SISTEMA RPG</h1>
+    <p>Tu aventura empieza hoy.</p>
+  </header>
 
-    <section class="panel profile">
-      <div class="rank">RANGO <span id="rank">E</span></div>
-      <h2>Nivel <span id="level">1</span></h2>
-      <p><span id="xp">0</span> / 100 EXP para el siguiente nivel</p>
-      <div class="bar"><div id="xp-bar"></div></div>
-    </section>
-
-    <section class="panel">
-      <h2>⚔️ Misiones diarias</h2>
-      <p class="muted">Completa tus misiones y gana experiencia.</p>
-      <div id="missions"></div>
-    </section>
-
-    <section class="panel">
-      <h2>📊 Estadísticas</h2>
-      <div class="stats">
-        <p>💪 Fuerza <strong id="strength">0</strong></p>
-        <p>❤️ Vitalidad <strong id="vitality">0</strong></p>
-        <p>🧠 Inteligencia <strong id="intelligence">0</strong></p>
-        <p>🔥 Disciplina <strong id="discipline">0</strong></p>
+  <main>
+    <section id="player-panel">
+      <h2>Estado del jugador</h2>
+      <p>Nivel: <strong id="player-level">1</strong></p>
+      <p>Rango: <strong id="player-rank">E</strong></p>
+      <p>Experiencia: <strong id="player-xp">0</strong> XP</p>
+      <div class="xp-track">
+        <div id="xp-progress" class="xp-progress"></div>
       </div>
+      <p id="xp-next-level">0 / 100 XP para el siguiente nivel</p>
     </section>
 
-    <footer>SISTEMA ACTIVO · SUPERA TUS LÍMITES</footer>
+    <section>
+      <h2>📜 Crear misión</h2>
+      <form id="mission-form" class="mission-creator">
+        <label for="mission-name">Nombre de la misión</label>
+        <input id="mission-name" name="name" type="text" placeholder="Ej. Entrenar 20 minutos" required>
+
+        <label for="mission-description">Descripción</label>
+        <textarea id="mission-description" name="description" placeholder="Describe tu objetivo"></textarea>
+
+        <label for="mission-difficulty">Dificultad</label>
+        <select id="mission-difficulty" name="difficulty">
+          <option value="facile">Fácil — 10 XP</option>
+          <option value="normal" selected>Normal — 25 XP</option>
+          <option value="dificil">Difícil — 50 XP</option>
+          <option value="epica">Épica — 100 XP</option>
+        </select>
+
+        <label for="mission-xp">Recompensa de XP</label>
+        <input id="mission-xp" name="xp" type="number" min="1" max="1000" value="25" required>
+
+        <button type="submit">＋ Crear misión</button>
+      </form>
+    </section>
+
+    <section>
+      <h2>🎯 Misiones pendientes</h2>
+      <div id="mission-list"></div>
+    </section>
+
+    <section>
+      <h2>📊 Estadísticas</h2>
+      <p>Misiones completadas: <strong id="missions-completed">0</strong></p>
+      <p>Misiones creadas: <strong id="missions-created">0</strong></p>
+    </section>
   </main>
+
   <script src="app.js"></script>
 </body>
 </html>
