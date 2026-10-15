@@ -2,65 +2,267 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#10101a">
-  <title>Mi Sistema RPG</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080d18">
+  <meta name="description" content="Project Awakening: convierte tu vida en una aventura RPG.">
+  <title>PROJECT AWAKENING</title>
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
-  <header>
-    <h1>⚔️ MI SISTEMA RPG</h1>
-    <p>Tu aventura empieza hoy.</p>
+  <header class="topbar">
+    <a class="brand" href="#inicio">⟁ AWAKENING</a>
+    <div class="system-status">
+      <span class="status-dot"></span>
+      SISTEMA ACTIVO
+    </div>
   </header>
 
-  <main>
-    <section id="player-panel">
-      <h2>Estado del jugador</h2>
-      <p>Nivel: <strong id="player-level">1</strong></p>
-      <p>Rango: <strong id="player-rank">E</strong></p>
-      <p>Experiencia: <strong id="player-xp">0</strong> XP</p>
-      <div class="xp-track">
-        <div id="xp-progress" class="xp-progress"></div>
+  <main class="app" id="inicio">
+    <section class="hero panel">
+      <p class="eyebrow">INTERFAZ DE JUGADOR · PROTOCOLO 001</p>
+      <h1>BIENVENIDO AL <span>SISTEMA</span></h1>
+      <p id="system-message">Tu despertar comienza ahora. Cada acción cuenta.</p>
+      <div class="player-summary">
+        <div class="rank-emblem">
+          <span id="player-rank">E</span>
+          <small>RANGO</small>
+        </div>
+        <div class="player-info">
+          <p class="muted">CAZADOR / JUGADOR</p>
+          <h2 id="player-name">Jugador</h2>
+          <p>Nivel <strong id="player-level">1</strong></p>
+          <div class="xp-track">
+            <div id="xp-progress" class="xp-progress"></div>
+          </div>
+          <p class="muted" id="xp-next-level">0 / 100 XP para el siguiente nivel</p>
+        </div>
       </div>
-      <p id="xp-next-level">0 / 100 XP para el siguiente nivel</p>
+      <div class="hero-stats">
+        <div><span>EXPERIENCIA</span><strong id="player-xp">0</strong><small>XP total</small></div>
+        <div><span>RACHA</span><strong id="streak-count">0</strong><small>días</small></div>
+        <div><span>REPUTACIÓN</span><strong id="reputation">100</strong><small>puntos</small></div>
+      </div>
     </section>
 
-    <section>
-      <h2>📜 Crear misión</h2>
-      <form id="mission-form" class="mission-creator">
-        <label for="mission-name">Nombre de la misión</label>
-        <input id="mission-name" name="name" type="text" placeholder="Ej. Entrenar 20 minutos" required>
+    <nav class="quick-nav" aria-label="Navegación principal">
+      <a href="#misiones">Misiones</a>
+      <a href="#atributos">Atributos</a>
+      <a href="#eventos">Eventos</a>
+      <a href="#inventario">Inventario</a>
+      <a href="#historial">Historial</a>
+    </nav>
 
-        <label for="mission-description">Descripción</label>
-        <textarea id="mission-description" name="description" placeholder="Describe tu objetivo"></textarea>
+    <section class="panel" id="misiones">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">PROTOCOLO DIARIO</p>
+          <h2>📜 Misiones</h2>
+        </div>
+        <span class="counter" id="mission-counter">0 completadas</span>
+      </div>
 
-        <label for="mission-difficulty">Dificultad</label>
-        <select id="mission-difficulty" name="difficulty">
-          <option value="facile">Fácil — 10 XP</option>
-          <option value="normal" selected>Normal — 25 XP</option>
-          <option value="dificil">Difícil — 50 XP</option>
-          <option value="epica">Épica — 100 XP</option>
-        </select>
+      <div class="daily-summary">
+        <div>
+          <strong id="daily-progress-text">0 / 0</strong>
+          <p>Progreso de hoy</p>
+        </div>
+        <div class="xp-track">
+          <div id="daily-progress-bar" class="xp-progress"></div>
+        </div>
+      </div>
 
-        <label for="mission-xp">Recompensa de XP</label>
-        <input id="mission-xp" name="xp" type="number" min="1" max="1000" value="25" required>
+      <div class="mission-filters">
+        <button type="button" class="filter-button active" data-filter="all">Todas</button>
+        <button type="button" class="filter-button" data-filter="daily">Diarias</button>
+        <button type="button" class="filter-button" data-filter="special">Especiales</button>
+        <button type="button" class="filter-button" data-filter="custom">Personalizadas</button>
+      </div>
 
-        <button type="submit">＋ Crear misión</button>
+      <div id="mission-list" class="mission-list" aria-live="polite">
+        <p class="muted">Cargando misiones del Sistema...</p>
+      </div>
+
+      <div class="button-row">
+        <button type="button" id="generate-event-button">⚡ Generar desafío sorpresa</button>
+      </div>
+
+      <h3 class="subheading">＋ Crear una misión</h3>
+      <form id="mission-form" class="form-grid">
+        <label for="mission-name">Nombre
+          <input id="mission-name" name="name" maxlength="100" required placeholder="Ej. Entrenar 20 minutos">
+        </label>
+
+        <label for="mission-description">Descripción
+          <textarea id="mission-description" name="description" maxlength="500" placeholder="¿Qué tienes que completar?"></textarea>
+        </label>
+
+        <div class="form-two-columns">
+          <label for="mission-difficulty">Dificultad
+            <select id="mission-difficulty" name="difficulty">
+              <option value="facile">Fácil</option>
+              <option value="normal" selected>Normal</option>
+              <option value="dificil">Difícil</option>
+              <option value="epica">Épica</option>
+            </select>
+          </label>
+
+          <label for="mission-xp">Recompensa XP
+            <input id="mission-xp" name="xp" type="number" min="1" max="1000" value="25" required>
+          </label>
+        </div>
+
+        <label for="mission-category">Categoría
+          <select id="mission-category" name="category">
+            <option value="discipline">Disciplina</option>
+            <option value="strength">Fuerza</option>
+            <option value="vitality">Vitalidad</option>
+            <option value="intelligence">Inteligencia</option>
+            <option value="agility">Agilidad</option>
+            <option value="focus">Concentración</option>
+          </select>
+        </label>
+
+        <button type="submit">＋ Incorporar misión</button>
       </form>
     </section>
 
-    <section>
-      <h2>🎯 Misiones pendientes</h2>
-      <div id="mission-list"></div>
+    <section class="panel" id="atributos">
+      <p class="eyebrow">ANÁLISIS DEL JUGADOR</p>
+      <h2>📊 Atributos</h2>
+      <p class="muted">Tu progreso real alimenta tu personaje.</p>
+
+      <div class="attribute-grid">
+        <article class="attribute-card">
+          <span>💪</span><h3>Fuerza</h3>
+          <strong id="strength">0</strong>
+        </article>
+        <article class="attribute-card">
+          <span>❤️</span><h3>Vitalidad</h3>
+          <strong id="vitality">0</strong>
+        </article>
+        <article class="attribute-card">
+          <span>🧠</span><h3>Inteligencia</h3>
+          <strong id="intelligence">0</strong>
+        </article>
+        <article class="attribute-card">
+          <span>🎯</span><h3>Disciplina</h3>
+          <strong id="discipline">0</strong>
+        </article>
+        <article class="attribute-card">
+          <span>⚡</span><h3>Agilidad</h3>
+          <strong id="agility">0</strong>
+        </article>
+        <article class="attribute-card">
+          <span>🔮</span><h3>Concentración</h3>
+          <strong id="focus">0</strong>
+        </article>
+      </div>
     </section>
 
-    <section>
-      <h2>📊 Estadísticas</h2>
-      <p>Misiones completadas: <strong id="missions-completed">0</strong></p>
-      <p>Misiones creadas: <strong id="missions-created">0</strong></p>
+    <section class="panel" id="castigos">
+      <p class="eyebrow">PROTOCOLO DE RESPONSABILIDAD</p>
+      <h2>🛡️ Consecuencias</h2>
+      <p>Las misiones aceptadas pueden tener un plazo y consecuencias configurables.</p>
+
+      <div class="settings-row">
+        <label for="strict-mode">Modo estricto</label>
+        <input id="strict-mode" type="checkbox" checked>
+      </div>
+
+      <div class="settings-row">
+        <label for="penalty-type">Consecuencia por incumplimiento</label>
+        <select id="penalty-type">
+          <option value="streak">Registrar fallo y reiniciar racha</option>
+          <option value="reputation">Reducir reputación virtual</option>
+          <option value="recovery">Asignar misión de recuperación</option>
+          <option value="combined">Combinar consecuencias</option>
+        </select>
+      </div>
+
+      <p class="muted">Las consecuencias se aplican dentro del juego. No implican daño físico, privación de necesidades básicas ni penalizaciones económicas reales.</p>
+
+      <div id="penalty-log" class="log-list" aria-live="polite">
+        <p class="muted">No hay incumplimientos registrados.</p>
+      </div>
+    </section>
+
+    <section class="panel" id="eventos">
+      <p class="eyebrow">ANOMALÍAS DETECTADAS</p>
+      <h2>⚡ Eventos y desafíos</h2>
+      <p class="muted">Desafíos sorpresa con límites para mantener el control del Sistema.</p>
+      <div id="event-list" class="event-list">
+        <p class="muted">Esperando el siguiente evento...</p>
+      </div>
+      <button type="button" id="new-event-button">Buscar evento</button>
+    </section>
+
+    <section class="panel" id="inventario">
+      <p class="eyebrow">RECOMPENSAS DESBLOQUEADAS</p>
+      <h2>🎒 Inventario</h2>
+      <div class="inventory-summary">
+        <span>Monedas virtuales</span>
+        <strong id="player-coins">0</strong>
+      </div>
+      <div id="inventory-list" class="inventory-list">
+        <p class="muted">Todavía no tienes objetos desbloqueados.</p>
+      </div>
+    </section>
+
+    <section class="panel" id="logros">
+      <p class="eyebrow">REGISTRO DE HAZAÑAS</p>
+      <h2>🏆 Logros</h2>
+      <div id="achievement-list">
+        <p class="muted">Tus logros aparecerán aquí.</p>
+      </div>
+    </section>
+
+    <section class="panel" id="historial">
+      <p class="eyebrow">MEMORIA DEL SISTEMA</p>
+      <h2>📖 Historial</h2>
+      <div class="history-summary">
+        <p>Misiones completadas <strong id="missions-completed">0</strong></p>
+        <p>Misiones creadas <strong id="missions-created">0</strong></p>
+        <p>Misiones fallidas <strong id="missions-failed">0</strong></p>
+      </div>
+      <div id="history-list" class="log-list">
+        <p class="muted">Tu aventura comienza aquí.</p>
+      </div>
+    </section>
+
+    <section class="panel" id="configuracion">
+      <p class="eyebrow">CONTROL DEL SISTEMA</p>
+      <h2>⚙️ Configuración y datos</h2>
+
+      <label for="player-name-input">Nombre del jugador
+        <input id="player-name-input" maxlength="40" placeholder="Escribe tu nombre de jugador">
+      </label>
+
+      <div class="settings-row">
+        <label for="daily-event-limit">Máximo de eventos diarios</label>
+        <select id="daily-event-limit">
+          <option value="2">2 eventos</option>
+          <option value="3" selected>3 eventos</option>
+          <option value="5">5 eventos</option>
+        </select>
+      </div>
+
+      <div class="button-row">
+        <button type="button" id="save-settings-button">Guardar configuración</button>
+        <button type="button" id="export-data-button">Exportar copia de seguridad</button>
+        <button type="button" id="import-data-button">Importar copia de seguridad</button>
+        <input id="import-file-input" type="file" accept="application/json,.json" hidden>
+      </div>
+
+      <p class="muted">Los datos se guardan en este navegador. Exporta una copia antes de cambiar de dispositivo o borrar los datos del navegador.</p>
+      <p id="system-notice" role="status" aria-live="polite"></p>
     </section>
   </main>
+
+  <footer>
+    <p>PROJECT AWAKENING</p>
+    <p>EL PROGRESO SE CONSTRUYE UNA MISIÓN A LA VEZ.</p>
+  </footer>
 
   <script src="app.js"></script>
 </body>
