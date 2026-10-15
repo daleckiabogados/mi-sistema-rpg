@@ -1,75 +1,128 @@
-
-const missions = [
-  { name: "Entrena tu cuerpo", desc: "Haz ejercicio o camina.", xp: 30, stat: "strength" },
-  { name: "Aprende algo nuevo", desc: "Dedica 20 minutos a aprender.", xp: 25, stat: "intelligence" },
-  { name: "Cuida tu descanso", desc: "Reserva tiempo para recuperarte.", xp: 20, stat: "vitality" },
-  { name: "Completa una tarea pendiente", desc: "Haz algo que llevas posponiendo.", xp: 25, stat: "discipline" }
+const DEFAULT_MISSIONS = [
+  { id: "daily-strength", name: "Entrena tu cuerpo", desc: "Haz ejercicio o camina.", xp: 30, stat: "strength", difficulty: "normal", custom: false },
+  { id: "daily-intelligence", name: "Aprende algo nuevo", desc: "Dedica 20 minutos a aprender.", xp: 25, stat: "intelligence", difficulty: "normal", custom: false },
+  { id: "daily-vitality", name: "Cuida tu descanso", desc: "Reserva tiempo para recuperarte.", xp: 20, stat: "vitality", difficulty: "facile", custom: false },
+  { id: "daily-discipline", name: "Completa una tarea pendiente", desc: "Haz algo que llevas posponiendo.", xp: 25, stat: "discipline", difficulty: "normal", custom: false }
 ];
 
-const today = new Date().toLocaleDateString("en-CA");
-let data;
+const XP_BY_DIFFICULTY = {
+  facile: 10,
+  normal: 25,
+  dificil: 50,
+  epica: 100
+};
 
-try {
-  data = JSON.parse(localStorage.getItem("miSistemaRPG")) || {};
-} catch {
-  data = {};
+const STORAGE_KEY = "miSistemaRPG";
+const CUSTOM_KEY = "miSistemaRPG_customMissions";
+const today = new Date().toLocaleDateString("en-CA");
+
+function readStorage(key, fallback) {
+  try {
+    const value = JSON.parse(localStorage.getItem(key));
+    return value ?? fallback;
+  } catch {
+    return fallback;
+  }
 }
+
+const oldData = readStorage(STORAGE_KEY, {});
+const savedCustomMissions = readStorage(CUSTOM_KEY, []);
+
+let data = {
+  xp: Number(oldData.xp) || 0,
+  stats: oldData.stats && typeof oldData.stats === "object" ? oldData.stats : {},
+  date: oldData.date || today,
+  done: Array.isArray(oldData.done) ? oldData.done : [],
+  completedCount: Number(oldData.completedCount) || 0
+};
+
+let customMissions = Array.isArray(savedCustomMissions) ? savedCustomMissions : [];
 
 if (data.date !== today) {
-  data = { date: today, xp: data.xp || 0, stats: data.stats || {}, done: [] };
+  data.date = today;
+  data.done = [];
 }
-
-data.xp ||= 0;
-data.stats ||= {};
-data.done ||= [];
 
 function save() {
-  localStorage.setItem("miSistemaRPG", JSON.stringify(data));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  localStorage.setItem(CUSTOM_KEY, JSON.stringify(customMissions));
 }
 
-function render() {
+function getMissions() {
+  return [...DEFAULT_MISSIONS, ...customMissions];
+}
+
+function getRank(level) {
+  if (level >= 30) return "S";
+  if (level >= 20) return "A";
+  if (level >= 12) return "B";
+  if (level >= 7) return "C";
+  if (level >= 4) return "D";
+  return "E";
+}
+
+function renderPlayer() {
   const level = Math.floor(data.xp / 100) + 1;
   const progress = data.xp % 100;
-  const rank = level >= 30 ? "S" : level >= 20 ? "A" :
-    level >= 12 ? "B" : level >= 7 ? "C" :
-    level >= 4 ? "D" : "E";
 
-  document.getElementById("level").textContent = level;
-  document.getElementById("xp").textContent = progress;
-  document.getElementById("rank").textContent = rank;
-  document.getElementById("xp-bar").style.width = progress + "%";
+  document.getElementById("player-level").textContent = level;
+  document.getElementById("player-rank").textContent = getRank(level);
+  document.getElementById("player-xp").textContent = data.xp;
+
+  const progressBar = document.getElementById("xp-progress");
+  progressBar.style.width = progress + "%";
+
+  document.getElementById("xp-next-level").textContent =
+    `${progress} / 100 XP para el siguiente nivel`;
 
   for (const stat of ["strength", "vitality", "intelligence", "discipline"]) {
-    document.getElementById(stat).textContent = data.stats[stat] || 0;
+    const element = document.getElementById(stat);
+    if (element) element.textContent = data.stats[stat] || 0;
   }
-
-  document.getElementById("missions").innerHTML = missions.map((m, i) => `
-    <div class="mission">
-      <strong>${m.name}</strong>
-      <p>${m.desc}</p>
-      <p>RECOMPENSA: +${m.xp} EXP</p>
-      <button data-mission="${i}" ${data.done.includes(i) ? "disabled" : ""}>
-        ${data.done.includes(i) ? "✓ MISIÓN COMPLETADA" : "COMPLETAR MISIÓN"}
-      </button>
-    </div>
-  `).join("");
 }
 
-document.getElementById("missions").addEventListener("click", event => {
-  const button = event.target.closest("button[data-mission]");
-  if (!button) return;
+function renderMissions() {
+  const container = document.getElementById("mission-list");
+  const missions = getMissions();
 
-  const i = Number(button.dataset.mission);
-  if (data.done.includes(i)) return;
+  container.innerHTML = missions.map(mission => {
+    const completed = data.done.includes(mission.id);
+    const difficulty = mission.difficulty || "normal";
+    const safeName = escapeHTML(mission.name);
+    const safeDesc = escapeHTML(mission.desc || "");
 
-  data.done.push(i);
-  data.xp += missions[i].xp;
-  const stat = missions[i].stat;
-  data.stats[stat] = (data.stats[stat] || 0) + 1;
+    return `
+      <article class="mission difficulty-${difficulty} ${completed ? "completed" : ""}">
+        <div class="mission-heading">
+          <h3>${safeName}</h3>
+          <span class="difficulty-badge difficulty-${difficulty}">
+            ${difficultyLabel(difficulty)}
+          </span>
+        </div>
+        <p>${safeDesc}</p>
+        <p class="mission-reward">RECOMPENSA: +${Number(mission.xp) || 0} XP</p>
+        <div class="mission-actions">
+          <button type="button" data-complete="${escapeHTML(mission.id)}" ${completed ? "disabled" : ""}>
+            ${completed ? "✓ MISIÓN COMPLETADA" : "COMPLETAR MISIÓN"}
+          </button>
+          ${mission.custom ? `<button type="button" class="delete-mission" data-delete="${escapeHTML(mission.id)}">Eliminar</button>` : ""}
+        </div>
+      </article>
+    `;
+  }).join("");
 
-  save();
-  render();
-});
+  document.getElementById("missions-completed").textContent = data.completedCount;
+  document.getElementById("missions-created").textContent = customMissions.length;
+}
 
-save();
-render();
+function difficultyLabel(difficulty) {
+  return ({
+    facile: "FÁCIL",
+    normal: "NORMAL",
+    dificil: "DIFÍCIL",
+    epica: "ÉPICA"
+  })[difficulty] || "NORMAL";
+}
+
+function escapeHTML(value) {
+  return String(value).replace(/[&
